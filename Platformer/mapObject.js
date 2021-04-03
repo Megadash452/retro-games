@@ -34,6 +34,7 @@ class MapObject
             &&  y                  > this.y                 // inner Top Boundary
             &&  y - entity.height  < this.y + this.height   // inner Bottom Boundary
     }
+    
 
     hits(entity, direction="") {
         // directions: top || bottom || right || left
@@ -65,7 +66,7 @@ class MapObject
             ctx.strokeStyle = hitboxColor;
             ctx.strokeRect(
                 this.x + ctx.lineWidth/2 - xScroll,
-                this.y + ctx.lineWidth/2,
+                this.y + ctx.lineWidth/2 - yScroll,
                 this.width - ctx.lineWidth,
                 this.height - ctx.lineWidth
             );

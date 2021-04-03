@@ -34,8 +34,7 @@ class Ground extends MapObject {
             case "left":
                 entity.dx = 0; // -1/60 * gridSize;
                 entity.x = this.x - entity.width/2;
-                if (entity.airborne && !(Math.abs(Math.sign(entity.dy) - 1)))
-                {
+                if (entity.airborne && !(Math.abs(Math.sign(entity.dy) - 1))) {
                     entity.dy = 0.04 * gridSize * gravity;
                     // wall grab
                 }
@@ -47,9 +46,15 @@ class Ground extends MapObject {
                 break;
             
             default:
-                entity.wallJumpAllowed = false;
-                entity.airborne = true;
+                
         }
+    }
+
+    wallJumpContains(entity) { //only use to check walljumps
+        return  entity.x + entity.width/2 + 3 > this.x                 // inner Left Boundary
+            &&  entity.x - entity.width/2 - 3 < this.x + this.width    // inner Right Boundary
+            &&  entity.y - 10                      > this.y                 // inner Top Boundary
+            &&  entity.y + 10 - entity.height       < this.y + this.height   // inner Bottom Boundary
     }
 
     draw() {
@@ -67,7 +72,7 @@ class Ground extends MapObject {
                 ctx.drawImage(
                     image,
                     this.x + column - xScroll,
-                    this.y + row,
+                    this.y + row - yScroll,
                     gridSize, 
                     gridSize
                 );

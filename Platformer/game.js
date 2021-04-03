@@ -5,6 +5,7 @@ let gravity = 1;
 let gameSpeed = 1;
 
 let xScroll = 0;
+let yScroll = 0;
 let frame = 0;
 
 
@@ -13,17 +14,16 @@ let frame = 0;
 let room = new Room([0, 0], [26, 20]);
 
 let mapObjects = [
-    new Ground([2, 18], [18, 2]),
-    new Ground([5, 17]),
+    new Ground([2, 13], [18, 2]),
+    new Ground([5, 12]),
     new Ground([8/(gridSize*0.03), 5], [2, 1]),
-    //new Ground([12, 5], [2, 1]),
-    new Ground([7, 16], [2, 1]),
-    new Ground([9, 16], [2, 1]),
-    new Ground([12, 13], [6, 1]),
-    new Ground([13, 14], [5, 4]),
-    new Ground([22, 14], [4, 1]),
+    new Ground([12, 5], [2, 1]),
+    new Ground([7, 11], [2, 1]),
+    new Ground([9, 11], [2, 1]),
+    new Ground([13, 8], [5, 5]),
+    new Ground([22, 9], [4, 1]),
 
-    new Spike([5, 14], [1, 1])
+    new Spike([21, 12], [1, 1])
 ];
 let spikes = [];
 
@@ -47,9 +47,9 @@ function loop() {
     }
     if ((keyPressed["Space"] || keyPressed["ArrowUp"]) && !hero.wasJump && !hero.airborne) {
         hero.jump();
-        if (hero.wallJumpAllowed) {
-            hero.wallJump();
-        }
+        hero.wasJump = true;
+    } else if ((keyPressed["Space"] || keyPressed["ArrowUp"]) && !hero.wasJump && hero.airborne && hero.wallJumpAllowed) {
+        hero.wallJump();
         hero.wasJump = true;
     } else if (!(keyPressed["Space"] || keyPressed["ArrowUp"])) {
         hero.wasJump = false;

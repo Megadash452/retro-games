@@ -35,15 +35,33 @@ class Hero
     jump() {
         if (!this.airborne) {
             this.airborne = true;
-            this.dy = -0.35 * gridSize; // might change to lower
+            this.dy = -0.25 * gridSize; // might change to lower
         }
     }
-    allowWallJump() {
+    allowWallJump() { // remove
         this.wallJumpAllowed = true;
     }
+    checkWallJumps() {
+        mapObjects.forEach(object => { // change to ground objects
+            try {
+                if (object.wallJumpContains(this)) {
+                    console.log("{walljump containts}");
+                    this.wallJumpAllowed = true;
+                }
+            } catch (TypeError) {
+
+            }
+            
+        });
+    }
     wallJump() { // only allow in very specific cases
-        this.dx = 0.35 * gridSize * this.wallJumpDir;
-        this.dy += -0.35 * gridSize;
+        this.dx = 0.135 * gridSize * this.wallJumpDir;
+        if (this.dy > 0) {
+            console.log(" - DOWN vel: ");
+            this.dy = -0.002 * gridSize;
+        } else
+            console.log(" --- UP more vel");
+            this.dy += -0.23 * gridSize;
         this.wallJumpAllowed = false;
     }
     crouch() {
@@ -59,16 +77,16 @@ class Hero
 
     moveLeft() {
         if (!this.airborne) {
-            this.dx += -0.02 * gridSize * this.speed;
-        } else {
             this.dx += -0.015 * gridSize * this.speed;
+        } else {
+            this.dx += -0.01 * gridSize * this.speed;
         }
     }
     moveRight() {
         if (!this.airborne) {
-            this.dx += 0.02 * gridSize * this.speed;
-        } else {
             this.dx += 0.015 * gridSize * this.speed;
+        } else {
+            this.dx += 0.01 * gridSize * this.speed;
         }
         if (!this.crouching) {
 
@@ -82,17 +100,42 @@ class Hero
 
             if (object.isAbove(preX, preY, this) && isInside) { // WAS ABOVE
                 object.hits(this, "top");
+                if (!hitOne)
+                    hitOne = "top";
             }
             else if (object.isBelow(preX, preY, this) && isInside) { // WAS BELOW
                 object.hits(this, "bottom");
+                if (!hitOne)
+                    hitOne = "bottom";
             }
             if (object.isToRight(preX, preY, this) && isInside) { // Hit wall from RIGHT
                 object.hits(this, "right");
+                if (!hitOne)
+                    hitOne = "right";
             }
             else if (object.isToLeft(preX, preY, this) && isInside) { // Hit Wall form LEFT
                 object.hits(this, "left");
+                if (!hitOne)
+                    hitOne = "top";
             }
         });
+        // switch (hitOne) {
+        // case "top":
+        //     this.airborne = false;
+        //     break;
+        // case "bottom":
+
+        //     break;
+        // case "right":
+
+        //     break;
+        // case "left":
+
+        //     break;
+        // default:
+        //     this.airborne = true;
+        //     this.wallJumpAllowed = false;
+        // }
     }
 
     // might add second function to check walljumps
@@ -103,6 +146,7 @@ class Hero
 
 
         this.checkCollisions(this.x - this.dx, this.y - this.dy);
+        this.checkWallJumps();
         
 
         if (this.y > room.y + room.height) { // bottom room border
@@ -116,13 +160,18 @@ class Hero
             this.x = room.x + room.width - this.width/2;
         }
 
+        // Scrolling
         if ((this.x > room.x + canvas.width/2) &&
             (this.x < room.x + room.width - canvas.width/2)) {
             xScroll = this.x - canvas.width/2;
         }
+        if ((this.y > room.y + canvas.height/2) &&
+            (this.y < room.y + room.height - canvas.height/2)) {
+            yScroll = this.y - canvas.height/2
+        }
 
         //friction
-        if (!this.airborne) 
+        if (!this.airborne)
             this.dx *= 0.9;
         else
             this.dx *= 0.95;
@@ -146,8 +195,8 @@ class Hero
         // Draw hero sprite
         ctx.drawImage(
             this.sprite,
-            this.x - gridSize / 2*this.size - xScroll,
-            this.y - gridSize*this.size,
+            this.x - gridSize / 2 * this.size - xScroll,
+            this.y - gridSize * this.size - yScroll,
             gridSize * this.size, 
             gridSize * this.size
         );
@@ -162,14 +211,14 @@ class Hero
             ctx.lineWidth = 3;
             ctx.strokeRect(
                 this.x - this.width/2 + ctx.lineWidth/2 - xScroll,
-                this.y - this.height + ctx.lineWidth/2,
+                this.y - this.height + ctx.lineWidth/2 - yScroll,
                 this.width - ctx.lineWidth,
                 this.height - ctx.lineWidth
             )
             // Draw small dot at (hero.x, hero.y)
             ctx.fillStyle = "black";
             ctx.beginPath();
-            ctx.arc(this.x - xScroll, this.y-1, 1, 0, 2*Math.PI);
+            ctx.arc(this.x - xScroll, this.y-1 - yScroll, 1, 0, 2*Math.PI);
             ctx.fill();
         }
     }
