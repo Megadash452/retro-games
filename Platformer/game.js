@@ -1,5 +1,3 @@
-let keyPressed = {};
-let wasJump = false;
 let hero = new Hero([gridSize * 3.5, 500]);
 
 const devMode = true;
@@ -47,11 +45,14 @@ function loop() {
     else if (keyPressed["ArrowRight"]) {
         hero.moveRight();
     }
-    if ((keyPressed["Space"] || keyPressed["ArrowUp"]) && !wasJump && !hero.airborne) {
+    if ((keyPressed["Space"] || keyPressed["ArrowUp"]) && !hero.wasJump && !hero.airborne) {
         hero.jump();
-        wasJump = true;
+        if (hero.wallJumpAllowed) {
+            hero.wallJump();
+        }
+        hero.wasJump = true;
     } else if (!(keyPressed["Space"] || keyPressed["ArrowUp"])) {
-        wasJump = false;
+        hero.wasJump = false;
     }
     if (keyPressed["ArrowDown"]) {
         hero.crouch();

@@ -15,6 +15,9 @@ class Hero
         this.speed = 1;
         
         this.airborne = true;
+        this.wasJump = true;
+        this.wallJumpAllowed = false;
+        this.wallJumpDir = 0;
         this.crouching = false;
 
         this.sprite;
@@ -34,6 +37,14 @@ class Hero
             this.airborne = true;
             this.dy = -0.35 * gridSize; // might change to lower
         }
+    }
+    allowWallJump() {
+        this.wallJumpAllowed = true;
+    }
+    wallJump() { // only allow in very specific cases
+        this.dx = 0.35 * gridSize * this.wallJumpDir;
+        this.dy += -0.35 * gridSize;
+        this.wallJumpAllowed = false;
     }
     crouch() {
         this.crouching = true;
@@ -65,6 +76,7 @@ class Hero
     }
 
     checkCollisions(preX, preY) {
+        let hitOne = "";
         mapObjects.forEach(object => {
             let isInside = object.contains(this.x, this.y, this);
 
@@ -82,6 +94,8 @@ class Hero
             }
         });
     }
+
+    // might add second function to check walljumps
 
     step() {
         this.x += this.dx;
@@ -108,7 +122,11 @@ class Hero
         }
 
         //friction
-        this.dx *= 0.9;
+        if (!this.airborne) 
+            this.dx *= 0.9;
+        else
+            this.dx *= 0.95;
+        
 
         if (!this.crouching) { //gravity & fastfall
             this.dy += 0.02 * gridSize * gravity;

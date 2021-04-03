@@ -77,7 +77,6 @@ class Room extends MapObject
 {
     constructor(pos, dim) {
         super(pos, dim);
-        console.log("room");
     }
 
     draw() {

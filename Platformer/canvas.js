@@ -37,3 +37,4 @@ const heroSprites = {
 
 let maxY = 20;
 let gridSize = Math.ceil(canvas.height / maxY);
+let keyPressed = {};
