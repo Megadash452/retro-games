@@ -1,0 +1,45 @@
+<html>
+    <head>
+        <style>
+            body{margin: 0;}
+            canvas {
+                width: 100%;
+                height: 100%;
+                z-index: 0;
+            }
+            #pause-btn {
+                position: fixed;
+                top: 0;
+                left: 0;
+
+                float: right;
+                padding-bottom: 6px; /*remove when using icon for butotn*/
+                font-size: 24;
+                
+                width: 45px;
+                height: 45px;
+
+                z-index: 1;
+            }
+        </style>
+        <link rel="shortcut icon" href="res/images/hero_stand.png" />
+    </head>
+    <body>
+        <canvas id="display"></canvas>
+            <button id="pause-btn">||</button>
+        <!--End of elements that should be inside canvas-->
+        
+
+        <script src="canvas.js"></script>
+        <script src="map_loader.js"></script>
+        
+        <script src="entity.js"></script>
+            <script src="hero.js"></script>
+
+        <script src="mapObject.js"></script>
+            <script src="ground.js"></script>
+            <script src="spike.js"></script>
+
+        <script src="game.js"></script> <!--Place last-->
+    </body>
+</html>
