@@ -74,6 +74,8 @@ function loop() {
     }
     relTime++;
     setTimeout(() => loop(), 1000 / (gameSpeed * 60));
+
+    
 }
 
 let animationCount = 0;

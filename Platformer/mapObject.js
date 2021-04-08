@@ -82,5 +82,13 @@ class Room extends MapObject
 
     draw() {
         super.draw();
+
+        ctx.fillStyle = "grey";
+        ctx.fillRect(
+            this.x,
+            this.y,
+            this.width,
+            this.y - canvas.height/2 - 100
+        );
     }
 }

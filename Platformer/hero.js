@@ -165,9 +165,9 @@ class Hero
             (this.x < room.x + room.width - canvas.width/2)) {
             xScroll = this.x - canvas.width/2;
         }
-        if ((this.y > room.y + canvas.height/2) &&
-            (this.y < room.y + room.height - canvas.height/2)) {
+        if (((this.y - 5 > canvas.height/2 - 100) && (this.y - 5 < room.y + room.height - canvas.height/2 + 100))) {
             yScroll = this.y - canvas.height/2
+            
         }
 
         //friction
