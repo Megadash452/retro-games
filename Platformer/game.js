@@ -9,6 +9,9 @@ let yScroll = 0;
 let frame = 0;
 
 
+let keyPressed = {};
+let controllers = [];
+
 // map files must be at least 20 lines high
 
 let room = new Room([0, 0], [26, 20]);
@@ -33,6 +36,20 @@ window.addEventListener('keydown', event => {
 });
 window.addEventListener('keyup', event => {
     keyPressed[event.code] = false;
+});
+
+window.addEventListener("gamepadconnected", function(e) {
+    console.log(e.gamepad);
+    connected = navigator.webkitGetGamepads();
+    console.log(connected);
+
+    switch (e.gamepad.id) {
+    case "Xbox 360 Controller (XInput STANDARD GAMEPAD)":
+        controllers.push(new XboxGamepad(connected));
+        break;
+    default:
+        controllers.push(new Controller(connected));
+    }
 });
 
 let relTime = 0;
@@ -78,6 +95,10 @@ function loop() {
     
 }
 
+function keys() {
+
+}
+
 let animationCount = 0;
 async function heroAnimation() {
     switch (animationCount % 3)
@@ -105,6 +126,7 @@ async function loadGame() {
     await heroWalkSprite2.loaded;
     await groundSprite.loaded;
     await groundTopSprite.loaded;
+    keys();
     loop();
     heroAnimation();
 }

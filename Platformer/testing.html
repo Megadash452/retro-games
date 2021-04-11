@@ -33,7 +33,7 @@
                 width: 10px;
             }
             .dragger {
-                cursor: move;
+                /*cursor: move;*/
                 border-radius: 100%;
                 height: 10px;
                 width: 10px;
@@ -72,7 +72,7 @@
 
 
         <script class="drag-script">
-            function makeElementDraggable(element, handler, elementType) {
+            function makeElementDraggable(element, handler, obj) {
                 var posBefore, posAfter = [0, 0];
 
                 element.onmousedown = function(event) {
@@ -87,31 +87,8 @@
                         ];
                         posBefore = [event.clientX, event.clientY];
 
-                        
-
                         // execute lambda
-                        switch (elementType) {
-                        case "entity":
-                            repositionEntity(
-                                element.parentElement,
-                                [posAfter[0], posAfter[1]]
-                            );
-                            break;
-                        
-                        case "block":
-                            repositionBlock(
-                                element.parentElement,
-                                [posAfter[0], posAfter[1]]
-                            );
-                            break;
-
-                        default:
-                            // element.style.left = `${element.offsetLeft - posAfter[0]}px`;
-                            // element.style.top = `${element.offsetTop - posAfter[1]}px`;
-                        //try {
-                            handler(element, [posAfter[0], posAfter[1]]);
-                        //} catch (TypeError) {}
-                        }
+                        handler(element, [posAfter[0], posAfter[1]], obj);
                     };
 
                     // release mouse button
@@ -120,13 +97,6 @@
                         document.onmousemove = null;
                     }
                 };
-            }
-
-            function repositionEntity(enElement, pos) {
-                enElement.style.left = `${enElement.offsetLeft - pos[0]}px`;
-                enElement.style.top = `${enElement.offsetTop - pos[1]}px`;
-                entity.x = enElement.offsetLeft - pos[0];
-                entity.y = enElement.offsetTop - pos[1];
             }
         </script>
 
@@ -160,28 +130,32 @@
                     //set z-indexes
                     this.#z = zIndex;
                     this.element.style.zIndex = `${zIndex}`;
-                    this.dragger.style.zIndex = `${zIndex + 3}`;
-                    this.innerCircle.style.zIndex = `${zIndex + 2}`;
+                    this.dragger.style.zIndex = `${zIndex + 10}`;
+                    this.innerCircle.style.zIndex = `${zIndex + 1}`;
                     
                     
-                    this.#width = 25;
-                    this.#height = 50;
+                    this.#width = dim[0];
+                    this.#height = dim[1];
                     
-                    this.x = 50;
-                    this.y = 50;  
+                    this.x = pos[0];
+                    this.y = pos[1];
 
                     this.hitboxWidth = 2;
 
                     // set main HTMLclass's properties
-                    this.element.style.width = `${this.#width}px`;
-                    this.element.style.height = `${this.#height}px`;
-                    // this.element.style.left = `${this.#x - this.#width/2}px`;
-                    // this.element.style.top = `${this.#y - this.#height}px`;
+                    this.element.style.width = `${this.#width - this.hitboxWidth*2}px`;
+                    this.element.style.height = `${this.#height - this.hitboxWidth*2}px`;
+                    this.element.style.left = `${this.#x - this.#width/2}px`;
+                    this.element.style.top = `${this.#y - this.#height - this.hitboxWidth*2}px`;
 
                     // set draggable div's properties
-                    this.dragger.style.left = `${this.#width/2 - this.dragger.clientWidth/2}px`;
+                    this.dragger.style.left = `${
+                        (this.#width - this.hitboxWidth*2)/2
+                      - this.dragger.clientWidth/2
+                    }px`;
                     this.dragger.style.top = `${
                         this.#height
+                      - this.hitboxWidth*2
                       - this.dragger.clientWidth/2
                       + this.hitboxWidth/2
                     }px`;
@@ -191,7 +165,6 @@
                     this.innerCircle.style.top = `${this.dragger.clientHeight/2 - this.innerCircle.clientHeight/2}px`;
 
                     this.makeDraggable();
-                    //this.makeUndraggable();
                 }
 
                 // getters
@@ -215,79 +188,204 @@
                 }
 
                 set x(x) {
-                    console.log("x: ", x);
-                    //this.#x = x;
-                    this.element.style.left = `${this.#x - this.#width/2}px`;
+                    this.#x = x;
+                    this.element.style.left = `${this.#x - this.#width/2}px`; //  
                     
                 }
                 set y(y) {
-                    console.log("x: ", y);
-                    //this.#y = y;
-                    this.element.style.top = `${this.#y - this.#height}px`;
+                    this.#y = y;
+                    this.element.style.top = `${this.#y - this.#height}px`; // 
                 }
 
                 makeDraggable() {
-                    this.element.firstChild.style.cursor = "move";
-                    this.element.firstElementChild.appendChild(document.createElement("div"));
-                    this.element.firstElementChild.children[1].setAttribute("class", "outer-circle");
-                    this.element.firstElementChild.children[1].style.zIndex = `${this.z + 1}`;
+                    this.dragger.style.cursor = "move";
+                    this.dragger.appendChild(document.createElement("div"));
+                    this.dragger.children[1].setAttribute("class", "outer-circle");
+                    this.dragger.children[1].style.zIndex = `${this.z + 1}`;
 
-                    console.log(this.#x);
-
-                    // TODO: Cant use `this` inside lambda, FIX
-                    makeElementDraggable(this.dragger, function(dragger, pos) {
-                        let element = dragger.parentElement;
-
-                        
-                        element.style.left = `${element.offsetLeft - pos[0]}px`;
-                        element.style.top = `${element.offsetTop - pos[1]}px`;
-                        entity.x = element.offsetLeft - pos[0];
-                        entity.y = element.offsetTop - pos[1];
-
-                        console.log(pos)
-
-
-                        // entity.x = dragger.offsetLeft - pos[0]; // does not call setter
-                        // entity.y = dragger.offsetTop - pos[1];  // does not call setter
-                    }, "entity");
+                    makeElementDraggable(this.dragger, function(ent, pos, entity) {
+                        entity.x -= pos[0];
+                        entity.y -= pos[1];
+                    }, this);
                 }
                 makeUndraggable() {
-                    this.element.firstElementChild.style.cursor = "unset";
-                    this.element.firstElementChild.children[1].remove();
+                    this.dragger.style.cursor = "unset";
+                    this.dragger.children[1].remove();
 
                     //remove dragability
                     this.element.removeChild(this.dragger);
                 }
 
                 checkBoundaries() {
-                    //console.log("checking boundaries");
                     if (this.x - this.width/2 < 0) {
-                        console.log("left border")
+                        this.x = this.width/2;
+                    } else if (this.x + this.width/2 > this.element.parentElement.clientWidth) {
+                        this.x = this.element.parentElement.clientWidth - this.width/2;
                     }
+                    if (this.y - this.height < 0) {
+                        this.y = this.height;
+                    } else if (this.y > this.element.parentElement.clientHeight) {
+                        this.y = this.element.parentElement.clientHeight;
+                    }
+
+                    objects.forEach(object => {
+
+                    });
                 }
             }
 
 
 
+            class Block {
+                #x; #y; #z; #width; #height;
+                constructor(pos, dim, zIndex=0) {
+                    this.element = document.createElement("div");
+                    this.dragger = this.element.appendChild(document.createElement("div"));
+                    this.innerCircle = this.dragger.appendChild(document.createElement("div"));
+
+                    // push entity element to HTML
+                    document.querySelector("body").appendChild(this.element);
+
+                    this.element.setAttribute("class", "block obj");
+                    this.dragger.setAttribute("class", "dragger");
+                    this.innerCircle.setAttribute("class", "inner-circle");
+
+                    //set z-indexes
+                    this.#z = zIndex;
+                    this.element.style.zIndex = `${zIndex}`;
+                    this.dragger.style.zIndex = `${zIndex + 10}`;
+                    this.innerCircle.style.zIndex = `${zIndex + 1}`;
+
+                    this.#width = dim[0];
+                    this.#height = dim[1];
+                    
+                    this.x = pos[0];
+                    this.y = pos[1];
+
+                    this.hitboxWidth = 2;
+
+                    // set main HTMLclass's properties
+                    this.element.style.width = `${this.#width - this.hitboxWidth*2}px`;
+                    this.element.style.height = `${this.#height - this.hitboxWidth*2}px`;
+                    this.element.style.left = `${this.#x}px`;
+                    this.element.style.top = `${this.#y}px`;
+
+                    // set draggable div's properties
+                    this.dragger.style.left = `${
+                      - this.dragger.clientWidth/2
+                      - this.hitboxWidth/2
+                    }px`;
+                    this.dragger.style.top = `${
+                      - this.dragger.clientHeight/2
+                      - this.hitboxWidth/2
+                    }px`;
+                    // set inner-circle's properties
+                    this.innerCircle.style.left = `${
+                        this.dragger.clientWidth/2 - this.innerCircle.clientWidth/2
+                    }px`;
+                    this.innerCircle.style.top = `${
+                        this.dragger.clientHeight/2 - this.innerCircle.clientHeight/2
+                    }px`;
+
+                    this.makeDraggable();
+                }
+
+                // getters
+                get pos()    {return [this.#x, this.#y]}
+                get width()  {return this.#width}
+                get height() {return this.#height}
+                get x()      {return this.#x}
+                get y()      {return this.#y}
+                get z()      {return this.#z}
+
+                // setters
+                set pos(arr)  {
+                    this.x = arr[0];
+                    this.y = arr[1];
+                }
+                set width(w) {
+
+                }
+                set height(h) {
+                    
+                }
+
+                set x(x) {
+                    this.#x = x;
+                    this.element.style.left = `${this.#x}px`; //  
+                    
+                }
+                set y(y) {
+                    this.#y = y;
+                    this.element.style.top = `${this.#y}px`; // 
+                }
+
+                makeDraggable() {
+                    this.dragger.style.cursor = "move";
+                    this.dragger.appendChild(document.createElement("div"));
+                    this.dragger.children[1].setAttribute("class", "outer-circle");
+                    this.dragger.children[1].style.zIndex = `${this.z + 1}`;
+
+                    makeElementDraggable(this.dragger, function(blk, pos, block) {
+                        block.x -= pos[0];
+                        block.y -= pos[1];
+                    }, this);
+                }
+
+                makeUndraggable() {
+                    this.dragger.style.cursor = "unset";
+                    this.dragger.children[1].remove();
+
+                    //remove dragability
+                    this.element.removeChild(this.dragger);
+                }
+
+                isBelow(x, y, entity) { // determines if the x and y coordinates given are below this ground's top border
+                    return  x + entity.width/2 >= this.x                // inner Left Boundary
+                        &&  x - entity.width/2 <= this.x + this.width   // inner Right Boundary
+                        &&  y - entity.height  >= this.y + this.height; // outer Bottom Boundary
+                }
+                isAbove(x, y, entity) { // opposite of 'isBelow;
+                    return  x + entity.width/2 >= this.x                // inner Left Boundary
+                        &&  x - entity.width/2 <= this.x + this.width   // inner Right Boundary
+                        &&  y                  <= this.y;               // outer Top Boundary
+                }
+                isToRight(x, y, entity) {
+                    return  y                  >  this.y                // inner Top Boundary
+                        &&  y - entity.height  <= this.y + this.height  // inner Bottom Boundary
+                        &&  x - entity.width/2 >= this.x + this.width;  // outer Right Boundary
+                }
+                isToLeft(x, y, entity) {
+                    return  y                  >  this.y                // inner Top Boundary
+                        &&  y - entity.height  <= this.y + this.height  // inner Bottom Boundary
+                        &&  x + entity.width/2 <= this.x;               // outer Left Boundary
+                }
+
+                contains(x, y, entity) {
+                    return  x + entity.width/2 > this.x                 // inner Left Boundary
+                        &&  x - entity.width/2 < this.x + this.width    // inner Right Boundary
+                        &&  y                  > this.y                 // inner Top Boundary
+                        &&  y - entity.height  < this.y + this.height   // inner Bottom Boundary
+                }
+            }
+
             var entity = undefined;
+            var objects = [];
 
             document.addEventListener("DOMContentLoaded", function() {
-                entity = new Entity([0, 0], [1, 1]); // entity object
+                entity = new Entity([25, 50], [25, 50]); // entity object
+                objects.push(new Block([50, 50], [50, 50]));
 
                 run = true;
             });
 
-            function checkBoundaries() {
-                
-            }
-
             function RUN() {
                 if (run) {
-                    //entity.checkBoundaries();
-                    //entity.x = 100;
+                    entity.checkBoundaries();
+                    //console.log(entity.x)
                 }
 
-                setTimeout(() => RUN(), 1000/60);
+                setTimeout(() => RUN(), 1000/50);
             }
 
             async function funcManager() {

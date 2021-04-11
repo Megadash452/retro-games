@@ -1,26 +1,13 @@
-class Hero
+class Hero extends Entity
 {
     constructor(pos) {
-        this.size = 1.35;
-        this.x = pos[0];
-        this.y = pos[1];
-        this.width = gridSize * (this.size-0.52); // (this.size-0.4)
-        this.height = gridSize * (this.size-0.39); // (this.size-0.39)
+        super(pos, [0.52, 0.39], 1.35, 1, "Player");
 
-        this.respawnX = this.x;
-        this.respawnY = this.y;
-
-        this.dx = 0;
-        this.dy = 0;
-        this.speed = 1;
-        
-        this.airborne = true;
         this.wasJump = true;
         this.wallJumpAllowed = false;
         this.wallJumpDir = 0;
         this.crouching = false;
 
-        this.sprite;
         this.movingSprite = heroWalkSprite1.image;
     }
 
@@ -166,8 +153,7 @@ class Hero
             xScroll = this.x - canvas.width/2;
         }
         if (((this.y - 5 > canvas.height/2 - 100) && (this.y - 5 < room.y + room.height - canvas.height/2 + 100))) {
-            yScroll = this.y - canvas.height/2
-            
+            yScroll = this.y - canvas.height/2;
         }
 
         //friction
@@ -176,7 +162,6 @@ class Hero
         else
             this.dx *= 0.95;
         
-
         if (!this.crouching) { //gravity & fastfall
             this.dy += 0.02 * gridSize * gravity;
         } else {
