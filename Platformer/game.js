@@ -10,7 +10,11 @@ let frame = 0;
 
 
 let keyPressed = {};
-let controllers = [];
+let controllers = {
+    keyboards: [],
+    gamepads: []
+};
+
 
 // map files must be at least 20 lines high
 
@@ -39,22 +43,53 @@ window.addEventListener('keyup', event => {
 });
 
 window.addEventListener("gamepadconnected", function(e) {
-    console.log(e.gamepad);
-    connected = navigator.webkitGetGamepads();
+    connected =  navigator.getGamepads();
     console.log(connected);
-
-    switch (e.gamepad.id) {
-    case "Xbox 360 Controller (XInput STANDARD GAMEPAD)":
-        controllers.push(new XboxGamepad(connected));
-        break;
-    default:
-        controllers.push(new Controller(connected));
+    console.log("/////////////")
+    for (i=0; i < connected.length; i++) {
+        let gamepad = connected[i];
+        
+        try{ 
+            switch (gamepad.id) {
+            case "Xbox 360 Controller (XInput STANDARD GAMEPAD)": // Xbox One
+                controllers.gamepads.push(gamepad);
+                break;
+            case "Wireless Gamepad (STANDARD GAMEPAD Vendor: 057e Product: 2009)": // Nintendo Switch Pro Controller
+                
+                break;
+            default:
+                controllers.gamepads.push(gamepad);
+            }
+        }
+        catch (e) {}
     }
 });
+
+function controllerManager() {
+    gamepads = navigator.getGamepads();
+    for (i=0; i < gamepads.length; i++) {
+        controllers.gamepads[i] = gamepads[i];
+    }
+
+    setTimeout(() => controllerManager(), 1000);
+}
 
 let relTime = 0;
 function loop() {
     // change state
+
+    //console.log(controllers.gamepads)
+    controllers.gamepads.forEach(gamepad => {
+        let buttonIndex = 0;
+        //console.log("gamepad: ", gamepad);
+        
+        if (gamepad) gamepad.buttons.forEach(button => {
+            if (button.pressed) {
+                console.log("button pressed: ", button, buttonIndex);
+            }
+            buttonIndex++;
+        });
+    });
 
     if (keyPressed["ArrowLeft"]) {
         hero.moveLeft();
@@ -95,10 +130,6 @@ function loop() {
     
 }
 
-function keys() {
-
-}
-
 let animationCount = 0;
 async function heroAnimation() {
     switch (animationCount % 3)
@@ -118,6 +149,22 @@ async function heroAnimation() {
     setTimeout(() => heroAnimation(), 100); //1000 - Math.abs(hero.dx*1000)
 }
 
+function loadFiles() {
+    console.log("load files");
+
+    // read controller mappigs
+    let file = new XMLHttpRequest();
+    
+    file.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var arr = JSON.parse(this.responseText);
+            console.log(arr);
+        }
+    };
+    file.open("GET", "file:///C:/Users/marti/Desktop/Retro%20Games%20Club/Platformer/mappings.json", true);
+    file.send();
+}
+
 // wait for images to load
 async function loadGame() {
     await heroStandSprite.loaded;
@@ -126,8 +173,9 @@ async function loadGame() {
     await heroWalkSprite2.loaded;
     await groundSprite.loaded;
     await groundTopSprite.loaded;
-    keys();
+    //loadFiles();
     loop();
     heroAnimation();
+    controllerManager();
 }
 loadGame();
